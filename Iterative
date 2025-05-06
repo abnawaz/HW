@@ -1,10 +1,17 @@
-def fibonacci_iterative(n):
-    if n <= 0:
-        return 0
-    elif n == 1:
-        return 1
+public class FibonacciIterative {
+    public static int fibonacci(int n) {
+        if (n <= 1) return n;
+        int prev = 0, curr = 1;
+        for (int i = 2; i <= n; i++) {
+            int next = prev + curr;
+            prev = curr;
+            curr = next;
+        }
+        return curr;
+    }
 
-    a, b = 0, 1
-    for _ in range(2, n + 1):
-        a, b = b, a + b
-    return b
+    public static void main(String[] args) {
+        int n = 10;
+        System.out.println("Fibonacci (" + n + ") = " + fibonacci(n));
+    }
+}
