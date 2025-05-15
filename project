@@ -1,0 +1,149 @@
+import java.util.*;
+import java.util.stream.Collectors;
+
+abstract class Product {
+    int productId;
+    String name;
+    double price;
+    String category;
+
+    public Product(int productId, String name, double price, String category) {
+        this.productId = productId;
+        this.name = name;
+        this.price = price;
+        this.category = category;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public String toString() {
+        return name + " ($" + price + ")";
+    }
+}
+
+class Electronics extends Product {
+    int warranty;
+
+    public Electronics(int productId, String name, double price, int warranty) {
+        super(productId, name, price, "Electronics");
+        this.warranty = warranty;
+    }
+}
+
+class Clothing extends Product {
+    String size;
+
+    public Clothing(int productId, String name, double price, String size) {
+        super(productId, name, price, "Clothing");
+        this.size = size;
+    }
+}
+
+class Grocery extends Product {
+    String expiryDate;
+
+    public Grocery(int productId, String name, double price, String expiryDate) {
+        super(productId, name, price, "Grocery");
+        this.expiryDate = expiryDate;
+    }
+}
+
+abstract class User {
+    int userId;
+    String name;
+
+    public User(int userId, String name) {
+        this.userId = userId;
+        this.name = name;
+    }
+}
+
+class Customer extends User {
+    List<Product> cart;
+
+    public Customer(int userId, String name) {
+        super(userId, name);
+        this.cart = new ArrayList<>();
+    }
+
+    public void addToCart(Product product) {
+        cart.add(product);
+    }
+
+    public List<Product> viewCart() {
+        return cart;
+    }
+}
+
+class Admin extends User {
+    public Admin(int userId, String name) {
+        super(userId, name);
+    }
+}
+
+class Order {
+    Customer customer;
+    List<Product> products;
+
+    public Order(Customer customer) {
+        this.customer = customer;
+        this.products = customer.viewCart();
+    }
+
+    public double calculateTotal() {
+        double subtotal = products.stream().mapToDouble(Product::getPrice).sum();
+        double tax = subtotal * 0.1;
+        double shipping = subtotal < 100 ? 5 : 0;
+        return subtotal + tax + shipping;
+    }
+}
+
+class ProductUtils {
+    public static List<Product> searchProducts(List<Product> products, String keyword) {
+        return products.stream()
+                .filter(p -> p.getName().toLowerCase().contains(keyword.toLowerCase()))
+                .collect(Collectors.toList());
+    }
+
+    public static List<Product> sortProductsByPrice(List<Product> products) {
+        return products.stream()
+                .sorted(Comparator.comparingDouble(Product::getPrice))
+                .collect(Collectors.toList());
+    }
+
+    public static List<Product> filterByCategory(List<Product> products, String category) {
+        return products.stream()
+                .filter(p -> p.getCategory().equals(category))
+                .collect(Collectors.toList());
+    }
+}
+
+public class ECommercePlatform {
+    public static void main(String[] args) {
+        List<Product> inventory = new ArrayList<>();
+        inventory.add(new Electronics(1, "Laptop", 1200, 24));
+        inventory.add(new Electronics(2, "Headphones", 150, 12));
+        inventory.add(new Clothing(3, "T-Shirt", 20, "M"));
+        inventory.add(new Grocery(4, "Apples", 5, "2025-07-01"));
+
+        Customer customer = new Customer(1, "Alice");
+        customer.addToCart(inventory.get(0));
+        customer.addToCart(inventory.get(2));
+
+        Order order = new Order(customer);
+        System.out.println(order.calculateTotal());
+        System.out.println(ProductUtils.searchProducts(inventory, "Laptop"));
+        System.out.println(ProductUtils.sortProductsByPrice(inventory));
+        System.out.println(ProductUtils.filterByCategory(inventory, "Electronics"));
+    }
+}
